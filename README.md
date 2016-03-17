@@ -3,4 +3,4 @@ This Repository contains various matlab functions, which might be useful for res
 
 ##Functions for EEGLAB:
 
-* **_addEEGEvents.m_** was written originally in order to select only stimulus-locked events in an EEG experiment followed by a correct response but it can catch any specified event following a target event. To check for correctness, the stimulus-locked event must be followed by a trigger coding the correctness of the response to the stimulus immediately (i.e. no other EEG events in between).
+* **_addEEGEvents.m_** was originally written in order to select only stimulus-locked events in an EEG experiment followed by a correct response but it can catch any specified event following a target event. To check for correctness, the stimulus-locked event must be followed by a trigger coding the correctness of the response to the stimulus immediately (i.e. no other EEG events in between).
