@@ -8,7 +8,7 @@ This repository contains various matlab functions, which might be useful for res
 ##Functions for Psychtoolbox 3 (PTB-3):
 
 * **_getVoiceResponse.m_** was written to capture voice responses in a simple psychological experiment in order to measure the response latency for subsequent analysis of reaction time (RT) using a microphone. Note that the function works fine for within-subject designs in which the exakt voice onset is not but the latancy differences between conditions are of interest. 
-* **_soundCheck.m_** performs a sound check to find the right threshold level for the function **_getVoiceResponse.m_**. The function produces a GUI like the following to find an appropriate trigger threshod.
+* **_soundCheck.m_** performs a sound check to find the right threshold level for the function **_getVoiceResponse.m_**. The function produces a GUI like the following to find an appropriate trigger threshold.
 
 ![examplegui_soundcheck](https://cloud.githubusercontent.com/assets/17894303/17837471/21179006-67b4-11e6-8b98-19954f518c1e.png)
 
