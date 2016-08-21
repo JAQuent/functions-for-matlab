@@ -1,5 +1,5 @@
 # functions-for-matlab
-This rdepository contains various matlab functions, which might be useful for research in psychology, neurosciences etc.
+This redepository contains various matlab functions, which might be useful for research in psychology, neurosciences etc.
 
 ##Functions for EEGLAB:
 
