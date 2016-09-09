@@ -136,6 +136,7 @@ if ~isempty(filename) % If no file name is provided, nothing is saved.
         set(hline,'Color','red')
         hold off
         saveas(gcf,horzcat(filename, '.png'))
+        close
 
         % Save .wav file
         wavwrite(transpose(audioData), 44100, 16, horzcat(filename, '.wav'))
@@ -157,6 +158,7 @@ if ~isempty(filename) % If no file name is provided, nothing is saved.
         set(hline,'Color','red')
         hold off
         saveas(gcf,horzcat(filename, '.png'))
+        close
     end
 end
 end
