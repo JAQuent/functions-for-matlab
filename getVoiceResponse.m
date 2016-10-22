@@ -2,25 +2,15 @@ function [RT] = getVoiceResponse(threshold, time, filename, varargin)
 %getVoiceResponse(threshold, time, wavFilename, varargin)
 %   The functions was written to collect responses and reaction times in
 %   psychological experiments making use of the Psychtoolbox 3 (PTB-3)
-%   function PsychPortAudio(). The function records audio data until
-%   the specified time elapsed and then tries to find the voice onset. A 
-%   time point is interpreted as the voice onset if the time point is
-%   followed by enough values, which are also above the threshold. The 
-%   specific criterion is that the number of values exceeding the defined 
-%   treshold within the time window starting with the value at hand and 
-%   lasting a specified amount of time (default = 5 msec) is not smaller 
-%   than a specified number (default = 20). The function chronologically 
-%   probes whether the values fulfill this requirement. The earliest time 
-%   point, which meets this requirement is interpreted as the voice onset.
-%   If no time point fulfills this requirement, -99 is returned as the voice 
-%   onset. The procdure was chosen to avoid that short lasting noise or 
-%   other short signal fluctuations are interpreted as the voice onset. 
-%   Additionaly, the function saves the sound and a figure with lines 
-%   marking the threshold and the voice onset for later inspection if a 
-%   filename is provided. If this is not wished, use [] instead. If you 
-%   only want to save one of them, use the optional argument 'savemode'. 
-%   Note that this function was written for a 2-channel set up and that it 
-%   only works if the function InitializePsychSound is called. 
+%   function PsychPortAudio(). For more details on this function see: help
+%   PsychPortAudio. Once the function is called, the function records until the
+%   the specified time elapsed and tries to find the voice onset. A time point is 
+%   interpreted as the voice onset if a number (default = 20) of values exceed 
+%   the treshold within a specified time window (default = 5 msec). The 
+%   function saves the sound and a figure with the threshold and where this is reached 
+%   if a filename is provided. If this is not wished, use [] instead. If
+%   you only want to save one of them, use the optional argument
+%   'savemode'. Note that this function was written for a 2-channel set up.
 %
 %   Mandatory arguments:
 %    threshold   -> Value between 0 and 1.
@@ -58,15 +48,12 @@ function [RT] = getVoiceResponse(threshold, time, filename, varargin)
 %                    2.1 - 8. September 2016 - Adding the possibilty to
 %                    save a plot and to flip the screen. 
 %                    2.2 - 11. September 2016 - Change the signal detection
-%                    algorithm. 
-%                    2.3 - 14. September 2016 - Improved documentation and
-%                    comments
-
-
-%% Start of function (time point 1)
-timePoint1 = GetSecs;
+%                    algorithm.
+%                    2.3 - 20. October 2016 - Small change
 
 %% Get time and parse input arguments
+timePoint1 = GetSecs;
+
 % Default values
 freq            = 44100; % Frequency of capture
 mode            = 2;     % Capture only
@@ -74,6 +61,8 @@ latencyMode     = 0;     % See PsychPortAudio('Open?') -> 'reqlatencyclass'
 channels        = 2;     % For stereo capture
 RT              = [];
 idx             = [];
+idx1            = [];
+idx2            = [];
 flip            = 0;
 saveMode        = 1; % Saves everything
 timeWindowMsec  = 5; % msec
@@ -121,7 +110,6 @@ end
 % Preallocate an internal audio recording  buffer with a capacity of 10 seconds:
 PsychPortAudio('GetAudioData', paHandle, 5);
 
-% Start of recording (time point 2)
 timePoint2 = GetSecs;
 PsychPortAudio('Start', paHandle, 0, 0, 1);
 timePoint3   = GetSecs;
@@ -142,64 +130,58 @@ s               = PsychPortAudio('GetStatus', paHandle);
 timeWindowIdx   = round(s.SampleRate/(1000/timeWindowMsec));
 
 % Channel 1
-idx1         = find(abs(audioData(1,:)) >= threshold); % Returns all values above the threshold in channel 1
-if ~isempty(idx1) % Excute only if peaks were found
+tempidx1         = find(abs(audioData(1,:)) >= threshold); 
+if ~isempty(tempidx1) % Excute only if peaks were found
     i            = 1;
-    narrowWindow = 0; % Used for correcting the size if the time window is larger than idx1
-    if i + timeWindowIdx > length(idx1) % If the index exceeds the idx1 vector, make window smaller
-        narrowWindow = length(idx1) - (i + timeWindowIdx);
+    narrowWindow = 0; % Used for correcting if the time window is larger than idx1
+    if i + timeWindowIdx > length(tempidx1) % If the index exceeds the idx1 vector make window smaller
+        narrowWindow = length(tempidx1) - (i + timeWindowIdx);
     end
-    timeWindow = idx1(i):(idx1(i) + timeWindowIdx); % Returns all values in the time window
+    timeWindow = tempidx1(i):(tempidx1(i) + timeWindowIdx);
 
-    % The if statement compares the actual values above the threshold
-    % within the specified time window with the number of possible values.
-    if length(timeWindow) - length(setdiff(idx1(i:(i + timeWindowIdx + narrowWindow)), timeWindow)) < nPeaks
-        while length(timeWindow) - length(setdiff(idx1(i:(i + timeWindowIdx + narrowWindow)), timeWindow)) < nPeaks
-            i          = i + 1;
-            if i > length(idx1)
+    if length(timeWindow) - length(setdiff(tempidx1(i:(i + timeWindowIdx + narrowWindow)), timeWindow)) < nPeaks
+        while length(timeWindow) - length(setdiff(tempidx1(i:(i + timeWindowIdx + narrowWindow)), timeWindow)) < nPeaks
+            i         = i + 1;
+            idx1      = tempidx1(i);
+            if i > length(tempidx1)
                 idx1 = [];
                 break
             end
-            timeWindow = idx1(i):(idx1(i) + timeWindowIdx);
-            if i + timeWindowIdx > length(idx1) % If the index exceeds the idx1 vector, make window smaller
-                narrowWindow = length(idx1) - (i + timeWindowIdx);
+            timeWindow = tempidx1(i):(tempidx1(i) + timeWindowIdx);
+            if i + timeWindowIdx > length(tempidx1) % If the index exceeds the idx1 vector make window smaller
+                narrowWindow = length(tempidx1) - (i + timeWindowIdx);
             end
         end
     end
-    idx1      = idx1(i);
 end
 
 % Channel 2
-idx2         = find(abs(audioData(2,:)) >= threshold); % Returns all values above the threshold in channel 2.
-if ~isempty(idx2) % Excute only if peaks were found.
+tempidx2         = find(abs(audioData(2,:)) >= threshold);
+if ~isempty(tempidx2) % Excute only if peaks were found
     i            = 1;
-    narrowWindow = 0; % Used for correcting the size if the time window is larger than idxs.
-    if i + timeWindowIdx > length(idx2)% If the index exceeds the idx2 vector, make window smaller.
-        narrowWindow = length(idx2) - (i + timeWindowIdx);
+    narrowWindow = 0; % Used for correcting if the time window is larger than idx1
+    if i + timeWindowIdx > length(tempidx2)% If the index exceeds the idx1 vector make window smaller
+        narrowWindow = length(tempidx2) - (i + timeWindowIdx);
     end
-    timeWindow = idx2(i):(idx2(i) + timeWindowIdx);
+    timeWindow = tempidx2(i):(tempidx2(i) + timeWindowIdx);
 
-    % The if statement compares the actual values above the threshold
-    % within the specified time window with the number of possible values.
-    if length(timeWindow) - length(setdiff(idx2(i:(i + timeWindowIdx + narrowWindow)), timeWindow)) < nPeaks
-        while length(timeWindow) - length(setdiff(idx2(i:(i + timeWindowIdx + narrowWindow)), timeWindow)) < nPeaks
+    if length(timeWindow) - length(setdiff(tempidx2(i:(i + timeWindowIdx + narrowWindow)), timeWindow)) < nPeaks
+        while length(timeWindow) - length(setdiff(tempidx2(i:(i + timeWindowIdx + narrowWindow)), timeWindow)) < nPeaks
             i          = i + 1;
-            if i > length(idx2)
-                idx2 = [];
+            idx2      = tempidx2(i);
+            if i > length(tempidx2)
+                idx2  = [];
                 break
             end
-            timeWindow = idx2(i):(idx2(i) + timeWindowIdx);
-            if i + timeWindowIdx > length(idx2) % If the index exceeds the idx2 vector, make window smaller.
-                narrowWindow = length(idx2) - (i + timeWindowIdx);
+            timeWindow = tempidx2(i):(tempidx2(i) + timeWindowIdx);
+            if i + timeWindowIdx > length(tempidx2) % If the index exceeds the idx1 vector make window smaller
+                narrowWindow = length(tempidx2) - (i + timeWindowIdx);
             end
         end
     end
-    idx2      = idx2(i);
 end
 
-% Returns the earliest value from the two channels. This index value is
-% divided by the sample rate and multiplied with 1000 to convert the RT
-% from sec to msec. 
+% Find lowest
 idx       = min([idx1 idx2]);
 RT        = idx/s.SampleRate*1000;
 
@@ -207,9 +189,6 @@ if  length(RT) < 1
     RT  = -99;
     idx = -99;
 else
-    % The period between the time point 1 (beginning of the function) and 
-    % time point 2 (just before the recoding starts) is added to the reaction 
-    % time. 
     RT = RT + (timePoint2 - timePoint1)*1000;
 end
 
