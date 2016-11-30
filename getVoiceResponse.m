@@ -50,7 +50,7 @@ function [RT] = getVoiceResponse(threshold, time, filename, varargin)
 %                    2.2 - 11. September 2016 - Change the signal detection
 %                    algorithm.
 %                    2.3 - 20. October 2016 - Small change
-
+%                    2.4 - 20. November 2016 Small change
 %% Get time and parse input arguments
 timePoint1 = GetSecs;
 
@@ -142,7 +142,6 @@ if ~isempty(tempidx1) % Excute only if peaks were found
     if length(timeWindow) - length(setdiff(tempidx1(i:(i + timeWindowIdx + narrowWindow)), timeWindow)) < nPeaks
         while length(timeWindow) - length(setdiff(tempidx1(i:(i + timeWindowIdx + narrowWindow)), timeWindow)) < nPeaks
             i         = i + 1;
-            idx1      = tempidx1(i);
             if i > length(tempidx1)
                 idx1 = [];
                 break
@@ -153,6 +152,7 @@ if ~isempty(tempidx1) % Excute only if peaks were found
             end
         end
     end
+    idx1      = tempidx1(i);
 end
 
 % Channel 2
@@ -168,7 +168,6 @@ if ~isempty(tempidx2) % Excute only if peaks were found
     if length(timeWindow) - length(setdiff(tempidx2(i:(i + timeWindowIdx + narrowWindow)), timeWindow)) < nPeaks
         while length(timeWindow) - length(setdiff(tempidx2(i:(i + timeWindowIdx + narrowWindow)), timeWindow)) < nPeaks
             i          = i + 1;
-            idx2      = tempidx2(i);
             if i > length(tempidx2)
                 idx2  = [];
                 break
@@ -179,6 +178,7 @@ if ~isempty(tempidx2) % Excute only if peaks were found
             end
         end
     end
+    idx2      = tempidx2(i);
 end
 
 % Find lowest
