@@ -2,13 +2,10 @@
 % Clear Matlab/Octave window:
 clc;
 
-% Reseed randomization
-rand('state', sum(100*clock));
 
 % check for Opengl compatibility, abort otherwise:
 AssertOpenGL;
 
-% RGB Colors Brockmole 2002 used different colors
 bgColor   = [128 128 128];
 
 HideCursor;
