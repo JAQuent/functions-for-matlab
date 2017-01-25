@@ -1,6 +1,6 @@
 function [position, RT, answer] = slideScale(screenPointer, question, rect, endPoints, varargin)
 %SLIDESCALE This funtion draws a slide scale on a PSYCHTOOLOX 3 screen and returns the
-% position of the slider in pixel as well as the rection time and if an answer was given.
+% position of the slider in spaced between -100 and 100 as well as the rection time and if an answer was given.
 %
 %   Usage: [position, secs] = slideScale(ScreenPointer, question, center, rect, endPoints, varargin)
 %   Mandatory input:
