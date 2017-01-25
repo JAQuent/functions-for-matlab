@@ -26,12 +26,11 @@ startPosition = round([rect(3)/2, rect(4)/2]);
 [myScreen, rect] = Screen('OpenWindow', 0, bgColor);
 center           = round([rect(3) rect(4)]/2);
 
-image  = imread('Unbenannt.png');
 
 question  = 'Did you like the picture?';
 endPoints = {'no', 'yes'};
 
-[position, RT, answer] = slideScale(myScreen, question, rect, endPoints, 'device', 'mouse', 'scalaposition', 0.9, 'image', image);
+[position, RT, answer] = slideScale(myScreen, question, rect, endPoints, 'device', 'mouse', 'scalaposition', 0.9);
 
 
 Screen('CloseAll') 
