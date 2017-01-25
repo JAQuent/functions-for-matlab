@@ -12,7 +12,7 @@ This repository contains various matlab functions, which might be useful for res
 
 ![examplegui_soundcheck](https://cloud.githubusercontent.com/assets/17894303/17837471/21179006-67b4-11e6-8b98-19954f518c1e.png)
 
-* **_slideScale.m_** This funtion draws a slide scale on a PSYCHTOOLOX 3 screen and returns the position of the slider in pixel as well as the rection time and if an answer was given. You can test the function with by running the script **_test_slideScale.m_**.
+* **_slideScale.m_** TThis funtion draws a slide scale on a PSYCHTOOLOX 3 screen and returns the position of the slider in spaced between -100 and 100 as well as the rection time and if an answer was given. You can test the function with by running the script **_test_slideScale.m_**.
 
 ##Disclaimer: 
 
