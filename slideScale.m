@@ -16,6 +16,8 @@ function [position, RT, answer] = slideScale(screenPointer, question, rect, endP
 %                       pixels. The default is 10.
 %    'width'         -> An integer specifying the width of the scala leine in
 %                       pixels. The default is 3.
+%    'startposition' -> Choose 'right', 'left' or 'center' start position.
+%                       Defualt is center.
 %    'scalalength'   -> Double value between 0 and 1 for the length of the
 %                       scale. The default is 0.9.
 %    'scalaposition' -> Double value between 0 and 1 for the position of the
@@ -52,6 +54,8 @@ function [position, RT, answer] = slideScale(screenPointer, question, rect, endP
 %                    ticks
 %                    1.3 - 06/01/2016 - Added the possibility to display an
 %                    image
+%                    1.4 - 05/02/2016 - Added the possibility to choose a
+%                    start position
 
 
 
@@ -74,6 +78,7 @@ device        = 'mouse';
 aborttime     = 8;
 responseKey   = KbName('return');
 drawImage     = 0;
+startPosition = 'center';
 
 i = 1;
 while(i<=length(varargin))
@@ -85,6 +90,10 @@ while(i<=length(varargin))
         case 'width'
             i             = i + 1;
             width         = varargin{i};
+            i             = i + 1;
+        case 'startposition'
+            i             = i + 1;
+            startPosition = varargin{i};
             i             = i + 1;
         case 'scalalength'
             i             = i + 1;
@@ -130,6 +139,16 @@ if strcmp(device, 'mouse')
 end
 
 %% Coordinates of scale lines and text bounds
+if strcmp(startPosition, 'right')
+    x = rect(3)*scalaLength;
+elseif strcmp(startPosition, 'center')
+    x = center(1);
+elseif strcmp(startPosition, 'left')
+    x = rect(3)*(1-scalaLength);
+else
+    error('Only right, center and left are possible start positions');
+end
+SetMouse(round(x), round(rect(4)*scalaPosition));
 midTick    = [center(1) rect(4)*scalaPosition - lineLength - 5 center(1) rect(4)*scalaPosition  + lineLength + 5];
 leftTick   = [rect(3)*(1-scalaLength) rect(4)*scalaPosition - lineLength rect(3)*(1-scalaLength) rect(4)*scalaPosition  + lineLength];
 rightTick  = [rect(3)*scalaLength rect(4)*scalaPosition - lineLength rect(3)*scalaLength rect(4)*scalaPosition  + lineLength];
@@ -141,6 +160,8 @@ if drawImage == 1
         error('The height of the image is too large. Either lower your scale or use the smaller image.');
     end
 end
+
+
 
 %% Loop for scale loop
 t0                         = GetSecs;
