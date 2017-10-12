@@ -1,4 +1,3 @@
-% Preliminary stuff
 % Clear Matlab/Octave window:
 clc;
 
