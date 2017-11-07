@@ -12,29 +12,31 @@ function [position, RT, answer] = slideScale(screenPointer, question, rect, endP
 %                      end of the scala. Exampe: endPoints = {'left, 'right'};
 %
 %   Varargin:
-%    'linelength'    -> An integer specifying the lengths of the ticks in
-%                       pixels. The default is 10.
-%    'width'         -> An integer specifying the width of the scala leine in
-%                       pixels. The default is 3.
-%    'startposition' -> Choose 'right', 'left' or 'center' start position.
-%                       Defualt is center.
-%    'scalalength'   -> Double value between 0 and 1 for the length of the
-%                       scale. The default is 0.9.
-%    'scalaposition' -> Double value between 0 and 1 for the position of the
-%                       scale. 0 is top and 1 is bottom.
-%    'device'        -> A string specifying the response device. Either 'mouse' 
-%                       or 'keyboard'. The default is 'mouse'.
-%    'responsekey'   -> String containing name of the key from the keyboard to log the
-%                       response. Example. The default is 'return'.
-%    'slidecolor'    -> Vector for the color value of the slider [r g b] 
-%                       from 0 to 255. The dedult is red [255 0 0].
-%    'scalacolor'    -> Vector for the color value of the scale [r g b] 
-%                       from 0 to 255.The dedult is black [0 0 0].
-%    'aborttime'     -> Double specifying the time in seconds after which
-%                       the function should be aborted. In this case no
-%                       answer is saved. The default is 8 secs.
-%    'image'         -> An image saved in a uint8 matrix. Use
-%                       imread('image.png') to load an image file.  
+%    'linelength'     -> An integer specifying the lengths of the ticks in
+%                        pixels. The default is 10.
+%    'width'          -> An integer specifying the width of the scala leine in
+%                        pixels. The default is 3.
+%    'startposition'  -> Choose 'right', 'left' or 'center' start position.
+%                        Defualt is center.
+%    'scalalength'    -> Double value between 0 and 1 for the length of the
+%                        scale. The default is 0.9.
+%    'scalaposition'  -> Double value between 0 and 1 for the position of the
+%                        scale. 0 is top and 1 is bottom.
+%    'device'         -> A string specifying the response device. Either 'mouse' 
+%                        or 'keyboard'. The default is 'mouse'.
+%    'responsekey'    -> String containing name of the key from the keyboard to log the
+%                        response. Example. The default is 'return'.
+%    'slidecolor'     -> Vector for the color value of the slider [r g b] 
+%                        from 0 to 255. The dedult is red [255 0 0].
+%    'scalacolor'     -> Vector for the color value of the scale [r g b] 
+%                        from 0 to 255.The dedult is black [0 0 0].
+%    'aborttime'      -> Double specifying the time in seconds after which
+%                        the function should be aborted. In this case no
+%                        answer is saved. The default is 8 secs.
+%    'image'          -> An image saved in a uint8 matrix. Use
+%                        imread('image.png') to load an image file.
+%    'displaypoition' -> If true, the position of the slider is displayed. 
+%                        The default is false. 
 %
 %   Output:
 %    'position'      -> Deviation from zero in percentage, 
@@ -47,16 +49,17 @@ function [position, RT, answer] = slideScale(screenPointer, question, rect, endP
 %   Author: Joern Alexander Quent
 %   e-mail: alexander.quent@rub.de
 %   Version history:
-%                    1.0 - 01/04/2016 - First draft
-%                    1.1 - 02/18/2016 - Added abort time and option to
+%                    1.0 - 4. January 2016 - First draft
+%                    1.1 - 18. Feburary 2016 - Added abort time and option to
 %                    choose between mouse and key board
-%                    1.2 - 05/10/2016 - End points will be aligned to end
+%                    1.2 - 5. October 2016 - End points will be aligned to end
 %                    ticks
-%                    1.3 - 06/01/2016 - Added the possibility to display an
+%                    1.3 - 06/01/2017 - Added the possibility to display an
 %                    image
-%                    1.4 - 05/02/2016 - Added the possibility to choose a
+%                    1.4 - 5. May 2017 - Added the possibility to choose a
 %                    start position
-
+%                    1.5 - 7. November - Added the possibility to display
+%                    the position of the slider under the scale.
 
 
 %% Return error if in multi display mode!
@@ -79,6 +82,7 @@ aborttime     = 8;
 responseKey   = KbName('return');
 drawImage     = 0;
 startPosition = 'center';
+displayPos    = false;
 
 i = 1;
 while(i<=length(varargin))
@@ -130,6 +134,10 @@ while(i<=length(varargin))
             imageSize     = size(image);
             stimuli       = Screen('MakeTexture', screenPointer, image);
             drawImage     = 1; 
+        case 'displayposition'
+            i             = i + 1;
+            displayPos    = varargin{i};
+            i             = i + 1;
     end
 end
 
@@ -161,7 +169,10 @@ if drawImage == 1
     end
 end
 
-
+% Calculate the range of the scale, which will be need to calculate the
+% position
+scaleRange        = round(rect(3)*(1-scalaLength)):round(rect(3)*scalaLength); % Calculates the range of the scale
+scaleRangeShifted = round((scaleRange)-mean(scaleRange));                      % Shift the range of scale so it is symmetrical around zero
 
 %% Loop for scale loop
 t0                         = GetSecs;
@@ -195,6 +206,15 @@ while answer == 0
     % The slider
     Screen('DrawLine', screenPointer, sliderColor, x, rect(4)*scalaPosition - lineLength, x, rect(4)*scalaPosition  + lineLength, width);
     
+    % Caculates position
+    position          = round((x)-mean(scaleRange));           % Shift the x value according to the new scale
+    position          = (position/max(scaleRangeShifted))*100; % Converts the value to percentage
+    
+    % Display position
+    if displayPos
+        DrawFormattedText(screenPointer, num2str(round(position)), 'center', rect(4)*(scalaPosition + 0.05)); 
+    end
+    
     % Flip screen
     onsetStimulus = Screen('Flip', screenPointer);
     
@@ -220,9 +240,5 @@ while answer == 0
 end
 %% Calculating the rection time and the position
 RT                = (secs - t0)*1000;                                          % converting RT to millisecond
-scaleRange        = round(rect(3)*(1-scalaLength)):round(rect(3)*scalaLength); % Calculates the range of the scale
-scaleRangeShifted = round((scaleRange)-mean(scaleRange));                      % Shift the range of scale so it is symmetrical around zero
-position          = round((x)-mean(scaleRange));                               % Shift the x value according to the new scale
-position          = (position/max(scaleRangeShifted))*100;                     % Converts the value to percentage
 end
 

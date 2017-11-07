@@ -1,3 +1,4 @@
+% Preliminary stuff
 % Clear Matlab/Octave window:
 clc;
 
@@ -26,7 +27,7 @@ center           = round([rect(3) rect(4)]/2);
 question  = 'Did you like the picture?';
 endPoints = {'no', 'yes'};
 
-[position, RT, answer] = slideScale(myScreen, question, rect, endPoints, 'device', 'mouse', 'scalaposition', 0.9);
+[position, RT, answer] = slideScale(myScreen, question, rect, endPoints, 'device', 'mouse', 'scalaposition', 0.9, 'startposition', 'right', 'displayposition', true);
 
 
 Screen('CloseAll') 
