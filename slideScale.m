@@ -1,11 +1,11 @@
 function [position, RT, answer] = slideScale(screenPointer, question, rect, endPoints, varargin)
 %SLIDESCALE This funtion draws a slide scale on a PSYCHTOOLOX 3 screen and returns the
-% position of the slider in spaced between -100 and 100 as well as the rection time and if an answer was given.
+% position of the slider spaced between -100 and 100 as well as the rection time and if an answer was given.
 %
 %   Usage: [position, secs] = slideScale(ScreenPointer, question, center, rect, endPoints, varargin)
 %   Mandatory input:
-%    ScreenPointer  -> pointer to the window
-%    question       -> Text string containing the question
+%    ScreenPointer  -> Pointer to the window.
+%    question       -> Text string containing the question.
 %    rect           -> Double contatining the screen size.
 %                      Obtained with [myScreen, rect] = Screen('OpenWindow', 0);
 %    endPoints      -> Cell containg the two text string of the left and right
@@ -14,18 +14,18 @@ function [position, RT, answer] = slideScale(screenPointer, question, rect, endP
 %   Varargin:
 %    'linelength'     -> An integer specifying the lengths of the ticks in
 %                        pixels. The default is 10.
-%    'width'          -> An integer specifying the width of the scala leine in
+%    'width'          -> An integer specifying the width of the scala line in
 %                        pixels. The default is 3.
 %    'startposition'  -> Choose 'right', 'left' or 'center' start position.
-%                        Defualt is center.
+%                        Default is center.
 %    'scalalength'    -> Double value between 0 and 1 for the length of the
 %                        scale. The default is 0.9.
 %    'scalaposition'  -> Double value between 0 and 1 for the position of the
-%                        scale. 0 is top and 1 is bottom.
+%                        scale. 0 is top and 1 is bottom. Default is 0.8.
 %    'device'         -> A string specifying the response device. Either 'mouse' 
 %                        or 'keyboard'. The default is 'mouse'.
 %    'responsekey'    -> String containing name of the key from the keyboard to log the
-%                        response. Example. The default is 'return'.
+%                        response. The default is 'return'.
 %    'slidecolor'     -> Vector for the color value of the slider [r g b] 
 %                        from 0 to 255. The dedult is red [255 0 0].
 %    'scalacolor'     -> Vector for the color value of the scale [r g b] 
