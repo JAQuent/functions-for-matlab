@@ -58,8 +58,10 @@ function [position, RT, answer] = slideScale(screenPointer, question, rect, endP
 %                    image
 %                    1.4 - 5. May 2017 - Added the possibility to choose a
 %                    start position
-%                    1.5 - 7. November - Added the possibility to display
+%                    1.5 - 7. November 2017 - Added the possibility to display
 %                    the position of the slider under the scale.
+%                    1.6 - 27. November 2017 - The function now waits until
+%                    all keys are released before exiting. 
 
 
 %% Return error if in multi display mode!
@@ -80,6 +82,7 @@ scaleColor    = [0 0 0];
 device        = 'mouse';
 aborttime     = 8;
 responseKey   = KbName('return');
+GetMouseIndices;
 drawImage     = 0;
 startPosition = 'center';
 displayPos    = false;
@@ -238,6 +241,10 @@ while answer == 0
         break
     end
 end
+%% Wating that all keys are released
+KbReleaseWait;
+KbReleaseWait(1);
+
 %% Calculating the rection time and the position
 RT                = (secs - t0)*1000;                                          % converting RT to millisecond
 end
