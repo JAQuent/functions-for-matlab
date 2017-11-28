@@ -62,14 +62,8 @@ function [position, RT, answer] = slideScale(screenPointer, question, rect, endP
 %                    the position of the slider under the scale.
 %                    1.6 - 27. November 2017 - The function now waits until
 %                    all keys are released before exiting. 
-
-
-%% Return error if in multi display mode!
-screens       = Screen('Screens');
-if length(screens) > 1
-    error('Multi display mode not supported.');
-end
-
+%                    1.7 - 28. November 2017 - More than one screen
+%                    supported now.
 %% Parse input arguments
 % Default values
 center        = round([rect(3) rect(4)]/2);
