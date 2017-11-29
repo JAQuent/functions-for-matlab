@@ -66,6 +66,7 @@ function [position, RT, answer] = slideScale(screenPointer, question, rect, endP
 %                    supported now.
 %                    1.8 - 29. November 2017 - Fixed issue that mouse is
 %                    not properly in windowed mode.
+
 %% Parse input arguments
 % Default values
 center        = round([rect(3) rect(4)]/2);
