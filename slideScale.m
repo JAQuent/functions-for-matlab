@@ -64,6 +64,8 @@ function [position, RT, answer] = slideScale(screenPointer, question, rect, endP
 %                    all keys are released before exiting. 
 %                    1.7 - 28. November 2017 - More than one screen
 %                    supported now.
+%                    1.8 - 29. November 2017 - Fixed issue that mouse is
+%                    not properly in windowed mode.
 %% Parse input arguments
 % Default values
 center        = round([rect(3) rect(4)]/2);
@@ -143,17 +145,26 @@ if strcmp(device, 'mouse')
     responseKey   = 1; % X mouse button
 end
 
+%% Checking number of screens and parsing size of the global screen
+screens       = Screen('Screens');
+if length(screens) > 1 % Checks for the number of screens
+    screenNum        = 1;
+else
+    screenNum        = 0;
+end
+globalRect          = Screen('Rect', screenNum);
+
 %% Coordinates of scale lines and text bounds
 if strcmp(startPosition, 'right')
-    x = rect(3)*scalaLength;
+    x = globalRect(3)*scalaLength;
 elseif strcmp(startPosition, 'center')
-    x = center(1);
+    x = globalRect(3)/2;
 elseif strcmp(startPosition, 'left')
-    x = rect(3)*(1-scalaLength);
+    x = globalRect(3)*(1-scalaLength);
 else
     error('Only right, center and left are possible start positions');
 end
-SetMouse(round(x), round(rect(4)*scalaPosition));
+SetMouse(round(x), round(rect(4)*scalaPosition), screenPointer, 1);
 midTick    = [center(1) rect(4)*scalaPosition - lineLength - 5 center(1) rect(4)*scalaPosition  + lineLength + 5];
 leftTick   = [rect(3)*(1-scalaLength) rect(4)*scalaPosition - lineLength rect(3)*(1-scalaLength) rect(4)*scalaPosition  + lineLength];
 rightTick  = [rect(3)*scalaLength rect(4)*scalaPosition - lineLength rect(3)*scalaLength rect(4)*scalaPosition  + lineLength];
