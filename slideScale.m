@@ -66,7 +66,8 @@ function [position, RT, answer] = slideScale(screenPointer, question, rect, endP
 %                    supported now.
 %                    1.8 - 29. November 2017 - Fixed issue that mouse is
 %                    not properly in windowed mode.
-
+%                    1.9 - 7. December 2017 - If an image is drawn, the
+%                    corresponding texture is deleted at the end.
 %% Parse input arguments
 % Default values
 center        = round([rect(3) rect(4)]/2);
@@ -247,10 +248,12 @@ while answer == 0
         break
     end
 end
-%% Wating that all keys are released
-KbReleaseWait;
-KbReleaseWait(1);
-
+%% Wating that all keys are released and delete texture
+KbReleaseWait; %Keyboard
+KbReleaseWait(1); %Mouse
+if drawImage == 1
+    Screen('Close', stimuli);
+end
 %% Calculating the rection time and the position
 RT                = (secs - t0)*1000;                                          % converting RT to millisecond
 end
