@@ -16,6 +16,9 @@ function [position, RT, answer] = slideScale(screenPointer, question, rect, endP
 %                        pixels. The default is 10.
 %    'width'          -> An integer specifying the width of the scala line in
 %                        pixels. The default is 3.
+%    'range'          -> An integer specifying the type of range. If 1,
+%                        then the range is from -100 to 100. If 2, then the
+%                        range is from 0 to 100. Default is 1. 
 %    'startposition'  -> Choose 'right', 'left' or 'center' start position.
 %                        Default is center.
 %    'scalalength'    -> Double value between 0 and 1 for the length of the
@@ -27,9 +30,9 @@ function [position, RT, answer] = slideScale(screenPointer, question, rect, endP
 %    'responsekey'    -> String containing name of the key from the keyboard to log the
 %                        response. The default is 'return'.
 %    'slidecolor'     -> Vector for the color value of the slider [r g b] 
-%                        from 0 to 255. The dedult is red [255 0 0].
+%                        from 0 to 255. The default is red [255 0 0].
 %    'scalacolor'     -> Vector for the color value of the scale [r g b] 
-%                        from 0 to 255.The dedult is black [0 0 0].
+%                        from 0 to 255.The default is black [0 0 0].
 %    'aborttime'      -> Double specifying the time in seconds after which
 %                        the function should be aborted. In this case no
 %                        answer is saved. The default is 8 secs.
@@ -68,6 +71,8 @@ function [position, RT, answer] = slideScale(screenPointer, question, rect, endP
 %                    not properly in windowed mode.
 %                    1.9 - 7. December 2017 - If an image is drawn, the
 %                    corresponding texture is deleted at the end.
+%                    1.10 - 28. December 2017 - Added the possibility to
+%                    choose the type of range (0 to 100 or -100 to 100).
 %% Parse input arguments
 % Default values
 center        = round([rect(3) rect(4)]/2);
@@ -84,6 +89,7 @@ GetMouseIndices;
 drawImage     = 0;
 startPosition = 'center';
 displayPos    = false;
+rangeType     = 1;
 
 i = 1;
 while(i<=length(varargin))
@@ -95,6 +101,10 @@ while(i<=length(varargin))
         case 'width'
             i             = i + 1;
             width         = varargin{i};
+            i             = i + 1;
+        case 'range'
+            i             = i + 1;
+            rangeType     = varargin{i};
             i             = i + 1;
         case 'startposition'
             i             = i + 1;
@@ -217,8 +227,14 @@ while answer == 0
     Screen('DrawLine', screenPointer, sliderColor, x, rect(4)*scalaPosition - lineLength, x, rect(4)*scalaPosition  + lineLength, width);
     
     % Caculates position
-    position          = round((x)-mean(scaleRange));           % Shift the x value according to the new scale
-    position          = (position/max(scaleRangeShifted))*100; % Converts the value to percentage
+    if rangeType == 1
+        position = round((x)-mean(scaleRange));           % Calculates the deviation from the center
+        position = (position/max(scaleRangeShifted))*100; % Converts the value to percentage
+    elseif rangeType == 2
+        position = round((x)-min(scaleRange));                       % Calculates the deviation from 0. 
+        position = (position/(max(scaleRange)-min(scaleRange)))*100; % Converts the value to percentage
+    end
+
     
     % Display position
     if displayPos
