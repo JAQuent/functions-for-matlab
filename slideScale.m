@@ -27,15 +27,18 @@ function [position, RT, answer] = slideScale(screenPointer, question, rect, endP
 %                        scale. 0 is top and 1 is bottom. Default is 0.8.
 %    'device'         -> A string specifying the response device. Either 'mouse' 
 %                        or 'keyboard'. The default is 'mouse'.
-%    'responsekey'    -> String containing name of the key from the keyboard to log the
-%                        response. The default is 'return'.
-%    'slidecolor'     -> Vector for the color value of the slider [r g b] 
+%    'responsekeys'   -> Vector containing keyCodes of the keys from the keyboard to log the
+%                        response and move the slider to the right and left. 
+%                        The default is [KbName('return') KbName('left') KbName('right')].
+%    'stepSize'       -> An integer specifying the number of pixel the
+%                        slider moves with each step. Default is 1.
+%    'slidercolor'    -> Vector for the color value of the slider [r g b] 
 %                        from 0 to 255. The default is red [255 0 0].
 %    'scalacolor'     -> Vector for the color value of the scale [r g b] 
 %                        from 0 to 255.The default is black [0 0 0].
 %    'aborttime'      -> Double specifying the time in seconds after which
 %                        the function should be aborted. In this case no
-%                        answer is saved. The default is 8 secs.
+%                        answer is saved. The default is Inf.
 %    'image'          -> An image saved in a uint8 matrix. Use
 %                        imread('image.png') to load an image file.
 %    'displaypoition' -> If true, the position of the slider is displayed. 
@@ -50,7 +53,7 @@ function [position, RT, answer] = slideScale(screenPointer, question, rect, endP
 %                       variable is 1.
 %
 %   Author: Joern Alexander Quent
-%   e-mail: alexander.quent@rub.de
+%   e-mail: Alex.Quent@mrc-cbu.cam.ac.uk
 %   Version history:
 %                    1.0 - 4. January 2016 - First draft
 %                    1.1 - 18. Feburary 2016 - Added abort time and option to
@@ -73,6 +76,11 @@ function [position, RT, answer] = slideScale(screenPointer, question, rect, endP
 %                    corresponding texture is deleted at the end.
 %                    1.10 - 28. December 2017 - Added the possibility to
 %                    choose the type of range (0 to 100 or -100 to 100).
+%                    1.11 - 7. May 2019 - Added the possibility to control
+%                    the slider with keys only. Use keyboard as devices and
+%                    select this keys for this function. In addition,
+%                    default for aborttime was changed to Inf and one bug
+%                    with slidercolor was fixed. 
 %% Parse input arguments
 % Default values
 center        = round([rect(3) rect(4)]/2);
@@ -80,16 +88,17 @@ lineLength    = 10;
 width         = 3;
 scalaLength   = 0.9;
 scalaPosition = 0.8;
-sliderColor    = [255 0 0];
+sliderColor   = [255 0 0];
 scaleColor    = [0 0 0];
 device        = 'mouse';
-aborttime     = 8;
-responseKey   = KbName('return');
+aborttime     = Inf;
+responseKeys  = [KbName('return') KbName('left') KbName('right')];
 GetMouseIndices;
 drawImage     = 0;
 startPosition = 'center';
 displayPos    = false;
 rangeType     = 1;
+stepSize      = 1;
 
 i = 1;
 while(i<=length(varargin))
@@ -120,15 +129,19 @@ while(i<=length(varargin))
             i             = i + 1;
         case 'device' 
             i             = i + 1;
-            device = varargin{i};
+            device        = varargin{i};
             i             = i + 1;
-        case 'responsekey'
+        case 'responsekeys'
             i             = i + 1;
-            responseKey   = KbName(varargin{i});
+            responseKeys  = varargin{i};
             i             = i + 1;
-        case 'slidecolor'
+        case 'stepsize'
             i             = i + 1;
-            sliderColor    = varargin{i};
+            stepSize      = varargin{i};
+            i             = i + 1;
+        case 'slidercolor'
+            i             = i + 1;
+            sliderColor   = varargin{i};
             i             = i + 1;
         case 'scalacolor'
             i             = i + 1;
@@ -154,7 +167,7 @@ end
 
 % Sets the default key depending on choosen device
 if strcmp(device, 'mouse')
-    responseKey   = 1; % X mouse button
+    mouseButton   = 1; % X mouse button
 end
 
 %% Checking number of screens and parsing size of the global screen
@@ -198,7 +211,21 @@ scaleRangeShifted = round((scaleRange)-mean(scaleRange));                      %
 t0                         = GetSecs;
 answer                     = 0;
 while answer == 0
-    [x,y,buttons,focus,valuators,valinfo] = GetMouse(screenPointer, 1);
+    % Parse user input for x location
+    if strcmp(device, 'mouse')
+        [x,~,buttons,~,~,~] = GetMouse(screenPointer, 1);
+    elseif strcmp(device, 'keyboard')
+        [~, ~, keyCode] = KbCheck;
+        if keyCode(responseKeys(2)) == 1
+            x = x - stepSize; % Goes stepSize pixel to the left
+        elseif keyCode(responseKeys(3)) == 1
+            x = x + stepSize; % Goes stepSize pixel to the right
+        end
+    else
+        error('Unknown device');
+    end
+    
+    % Stop at upper and lower bound
     if x > rect(3)*scalaLength
         x = rect(3)*scalaLength;
     elseif x < rect(3)*(1-scalaLength)
@@ -242,21 +269,19 @@ while answer == 0
     end
     
     % Flip screen
-    onsetStimulus = Screen('Flip', screenPointer);
+    Screen('Flip', screenPointer);
     
     % Check if answer has been given
     if strcmp(device, 'mouse')
         secs = GetSecs;
-        if buttons(responseKey) == 1
+        if buttons(mouseButton) == 1
             answer = 1;
         end
     elseif strcmp(device, 'keyboard')
-        [keyIsDown, secs, keyCode] = KbCheck;
-        if keyCode(responseKey) == 1
+        [~, secs, keyCode] = KbCheck;
+        if keyCode(responseKeys(1)) == 1
             answer = 1;
         end
-    else
-        error('Unknown device');
     end
     
     % Abort if answer takes too long
