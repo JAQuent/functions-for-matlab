@@ -1,3 +1,10 @@
+[![DOI](https://zenodo.org/badge/54141630.svg)](https://zenodo.org/badge/latestdoi/54141630)
+
+Recognition
+===========
+
+Please recognise this work by citing it.
+
 # functions-for-matlab
 This repository contains various matlab functions, which might be useful for research in psychology, neurosciences etc.
 
