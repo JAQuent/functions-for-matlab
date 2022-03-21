@@ -2,9 +2,9 @@ function createStackedTexture(fileName, go2R, go2G, go2B, go2A)
 %createStackedTexture This functions takes greyscale texture maps (currently only .png) and
 %copies them into one RGBA images in the respective channels. 
 % go2R = Greyscale image or array that should go into the R channel. 
-% go2G = Greyscale image or array that should go into the R channel. 
-% go2B = Greyscale image or array that should go into the R channel. 
-% go2A = Greyscale image or array that should go into the R channel. 
+% go2G = Greyscale image or array that should go into the G channel. 
+% go2B = Greyscale image or array that should go into the B channel. 
+% go2A = Greyscale image or array that should go into the A channel. 
 
 %% Reade files or copy if arrays
 if isstring(go2R) || ischar(go2R)
